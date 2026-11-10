@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#4a0b1d">
+<title>Düz Okey</title>
+<style>
+  :root {
+    --bordo: #7a1230; --bordo2: #4a0b1d; --bordo3: #2a0610; --mavi: #1f5fc4; --mavi2: #0d2a5e; --acik: #8fb8ff;
+    --ivory: #f6efdc; --tw: 38px; --th: 52px; --side: 72px;
+    --c0: #c98a00; --c1: #1f4fd6; --c2: #15151a; --c3: #cf2a2a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bordo3); color: #fff; font-family: "Trebuchet MS", "Segoe UI", sans-serif; touch-action: manipulation; }
+  button { font: inherit; cursor: pointer; color: inherit; }
+  .scr { position: fixed; inset: 0; display: none; }
+  .scr.on { display: flex; }
+  .bgfx { background: radial-gradient(ellipse at 20% 10%, var(--bordo) 0%, var(--bordo2) 45%, var(--mavi2) 130%); }
+  .logo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: .13; padding: 4vh 0; pointer-events: none; }
+  .btn { padding: 12px 22px; border: 0; border-radius: 10px; font-weight: 700; background: linear-gradient(#2f78e6, var(--mavi)); box-shadow: 0 3px 0 #123c86; color: #fff; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #123c86; }
+  .btn.bord { background: linear-gradient(#a21a40, var(--bordo)); box-shadow: 0 3px 0 #3d0716; }
+  .chip { padding: 5px 12px; border-radius: 16px; border: 1px solid #ffffff55; background: #0005; font-size: 13px; }
+  .chip:active { background: #fff3; }
+
+  #scrLogin { align-items: center; justify-content: center; }
+  #lf { position: relative; display: flex; gap: 10px; align-items: center; }
+  #lf input { width: min(300px, 40vw); padding: 14px 16px; border-radius: 10px; border: 2px solid #ffffff44; background: #0007; color: #fff; font-size: 18px; text-align: center; outline: none; }
+  #lf input:focus { border-color: var(--acik); }
+  #lerr { position: absolute; top: calc(100% + 12px); left: 0; right: 0; text-align: center; color: #ffb3b3; font-size: 14px; min-height: 18px; }
+
+  #scrMenu { align-items: center; justify-content: center; flex-direction: column; }
+  #hi { position: absolute; top: 12px; left: 16px; font-size: 14px; opacity: .85; z-index: 2; }
+  #cards { position: relative; display: flex; gap: 3vw; z-index: 1; }
+  .card { width: min(26vw, 260px); height: min(52vh, 230px); border-radius: 18px; border: 2px solid #ffffff3a; background: linear-gradient(160deg, #ffffff1c, #0006); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; font-size: clamp(16px, 2.4vw, 24px); font-weight: 700; }
+  .card:active { transform: scale(.97); }
+  .dots { display: flex; gap: 8px; }
+  .dots i { width: 20px; height: 20px; border-radius: 50%; background: var(--acik); }
+  .dots i.b { background: transparent; border: 2px solid #ffffff99; }
+
+  #scrList { flex-direction: column; padding: 14px 18px; gap: 12px; }
+  .bar { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+  .bar .ttl { font-weight: 700; font-size: 18px; }
+  #tlist { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 14px; overflow: auto; align-content: flex-start; padding: 6px 2px; }
+  .tcard { width: 200px; min-height: 108px; border-radius: 14px; border: 2px solid #ffffff3a; background: linear-gradient(160deg, #ffffff1c, #0006); padding: 12px; display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; text-align: center; }
+  .tcard.new { font-size: 34px; border-style: dashed; }
+  .tcard .nm { font-size: 13px; opacity: .9; }
+  .tag { font-size: 12px; padding: 2px 10px; border-radius: 10px; background: var(--mavi); }
+
+  #scrLobby { flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  #lobTop { position: absolute; top: 12px; left: 14px; z-index: 2; }
+  #seatsRow { position: relative; z-index: 1; display: flex; gap: 22px; }
+  .seatc { width: 110px; height: 110px; border-radius: 50%; border: 3px dashed #ffffff44; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; padding: 8px; font-size: 14px; word-break: break-word; }
+  .seatc.fill { border-style: solid; border-color: var(--acik); background: #ffffff14; }
+  .seatc.bot { border-style: solid; border-color: #ffffff55; opacity: .7; }
+  #modeRow { position: relative; z-index: 1; display: flex; gap: 18px; min-height: 52px; align-items: center; }
+  #modeRow .btn { font-size: 22px; padding: 14px 40px; }
+
+  #scrGame { flex-direction: column; background: radial-gradient(ellipse at 50% 45%, #153a78 0%, var(--mavi2) 55%, #08183a 100%); }
+  #top { display: flex; align-items: center; gap: 10px; padding: 4px 12px; height: 34px; background: #0006; flex: none; }
+  #top .lbl { font-weight: 700; font-size: 14px; }
+  #table { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr; padding: 2px 8px; }
+  #rowTop { display: flex; justify-content: center; }
+  #rowMid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 3px 8px; border-radius: 10px; border: 1px solid transparent; }
+  .cell .nm { font-size: 12px; font-weight: 700; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .92; }
+  .cell.turn { border-color: var(--acik); box-shadow: 0 0 14px #8fb8ff88; }
+  #cellL { justify-self: start; margin-left: 4%; } #cellR { justify-self: end; margin-right: 4%; }
+  .dz { width: calc(var(--tw) + 12px); height: calc(var(--th) + 12px); border: 2px dashed #ffffff33; border-radius: 9px; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #ffffffaa; position: relative; }
+  .dz.over { background: #8fb8ff33; border-color: var(--acik); }
+  .dz.live { border-color: var(--acik); animation: pulse 1.4s infinite; }
+  .dz.fin { border-color: #7be0a099; color: #7be0a0; }
+  .dz.fin.live { border-color: #7be0a0; }
+  @keyframes pulse { 50% { box-shadow: 0 0 12px #8fb8ffcc; } }
+  #center { display: flex; align-items: center; gap: 14px; }
+  #deck { position: relative; width: var(--tw); height: var(--th); cursor: pointer; }
+  #deck .stack { position: absolute; inset: 0; border-radius: 6px; background: linear-gradient(135deg, #f1e7c9, #cfc19a); box-shadow: 2px 2px 0 #b9ab82, 4px 4px 0 #a89a72, 6px 6px 8px #0008; }
+  #deck.live .stack { outline: 3px solid var(--acik); }
+  #deck span { position: absolute; inset: 0; display: grid; place-items: center; color: #5a4a20; font-weight: 700; font-size: calc(var(--tw) * .42); }
+  #gos { display: flex; align-items: center; gap: 6px; }
+  #gos .tile { --tw: calc(var(--tw0) * .72); --th: calc(var(--th0) * .72); }
+  #gos .arr { opacity: .6; font-size: 14px; }
+  .tile { width: var(--tw); height: var(--th); background: linear-gradient(#fffaf0, var(--ivory)); border-radius: 6px; box-shadow: 0 2px 0 #b6a679, 0 3px 6px #0006; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Georgia, serif; font-weight: 700; user-select: none; position: relative; touch-action: none; cursor: grab; }
+  .tile b { font-size: calc(var(--tw) * .56); line-height: 1; }
+  .tile span { font-size: calc(var(--tw) * .26); line-height: 1; margin-top: 1px; }
+  .tile.okey::after { content: "★"; position: absolute; top: 0; right: 2px; font-size: calc(var(--tw) * .28); color: #b8860b; }
+  .tile.fake b { font-size: calc(var(--tw) * .5); color: #6b4fb0; }
+  .tile.fresh { outline: 3px solid var(--acik); }
+  .tile.dragging { opacity: .35; }
+  .ghost { position: fixed; pointer-events: none; z-index: 60; opacity: .92; transform: translate(-50%, -50%) scale(1.12); }
+  #bottom { flex: none; display: grid; grid-template-columns: var(--side) 1fr var(--side); gap: 8px; align-items: end; padding: 0 8px 8px; }
+  .side { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .side .btn { padding: 9px 4px; width: 100%; font-size: 13px; }
+  #rackwrap { display: flex; justify-content: center; }
+  #rack { display: grid; grid-template-columns: repeat(15, calc(var(--tw) + 4px)); grid-auto-rows: calc(var(--th) + 8px); gap: 1px; padding: 8px 10px 10px; background: linear-gradient(#5b1530, var(--bordo2)); border-radius: 10px; box-shadow: inset 0 3px 8px #0009, 0 4px 0 #24060f, 0 8px 18px #000a; border: 2px solid transparent; }
+  #bottom.myturn #rack { border-color: var(--acik); box-shadow: inset 0 3px 8px #0009, 0 0 18px #8fb8ff88, 0 4px 0 #24060f; }
+  .slot { display: grid; place-items: center; border-radius: 5px; background: #00000030; }
+  .slot.over { background: #8fb8ff66; }
+
+  #tbl { position: fixed; inset: 0; background: #000b; display: none; align-items: center; justify-content: center; z-index: 40; }
+  #tbl.on { display: flex; }
+  #paper { background: #f4ecd4; color: #2a1a10; border-radius: 10px; padding: 8px 14px 10px; max-height: 96vh; overflow: auto; box-shadow: 0 10px 40px #000a; border: 3px solid var(--bordo); min-width: min(560px, 92vw); }
+  #paper table { border-collapse: collapse; width: 100%; font-family: Georgia, serif; }
+  #paper th, #paper td { border: 1px solid #b9a77a; padding: 0 10px; height: 21px; text-align: center; font-size: 14px; min-width: 70px; }
+  #paper th { background: var(--bordo); color: #fff; font-size: 13px; height: 26px; max-width: 160px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  #paper td.n { background: #e6dab5; font-size: 12px; min-width: 28px; width: 28px; padding: 0; }
+  #paper td.cur { background: #ffe9a8; }
+  #paper tr.tot td { border-top: 3px double var(--bordo); font-weight: 700; font-size: 16px; height: 28px; }
+  #paper td.win { background: #bfe3b4; }
+  .ln { display: inline-block; width: 30px; height: 0; border-top: 3px solid var(--mavi); vertical-align: middle; border-radius: 2px; }
+  #tblBtns { display: flex; justify-content: center; gap: 12px; margin-top: 8px; }
+
+  #toast { position: fixed; left: 50%; top: 44px; transform: translateX(-50%); background: #000d; padding: 6px 16px; border-radius: 16px; display: none; z-index: 70; font-size: 14px; }
+  #rot { position: fixed; inset: 0; z-index: 100; background: var(--bordo2); display: none; align-items: center; justify-content: center; }
+  @media (orientation: portrait) { #rot { display: flex; } }
+  #rot svg { width: 120px; height: 120px; animation: rotz 2.2s ease-in-out infinite; }
+  @keyframes rotz { 0%, 30% { transform: rotate(0); } 70%, 100% { transform: rotate(-90deg); } }
+</style>
+</head>
+<body>
+
+<div class="scr on bgfx" id="scrLogin">
+  <img class="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <form id="lf" autocomplete="off">
+    <input id="nm" maxlength="16" placeholder="İsim" required>
+    <button class="btn" type="submit">Giriş</button>
+    <div id="lerr"></div>
+  </form>
+</div>
+
+<div class="scr bgfx" id="scrMenu">
+  <img class="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <div id="hi"></div>
+  <div id="cards">
+    <button class="card" data-k="b2"><div class="dots"><i></i><i></i><i class="b"></i><i class="b"></i></div>2 Kişi + 2 Bot</button>
+    <button class="card" data-k="b1"><div class="dots"><i></i><i></i><i></i><i class="b"></i></div>3 Kişi + 1 Bot</button>
+    <button class="card" data-k="h4"><div class="dots"><i></i><i></i><i></i><i></i></div>4 Kişi</button>
+  </div>
+</div>
+
+<div class="scr bgfx" id="scrList">
+  <img class="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <div class="bar"><button class="chip" id="listBack">←</button><div class="ttl" id="listTtl"></div></div>
+  <div id="tlist"></div>
+</div>
+
+<div class="scr bgfx" id="scrLobby">
+  <img class="logo" src="logo.png" alt="" onerror="this.style.display='none'">
+  <div id="lobTop"><button class="chip" id="lobLeave">←</button></div>
+  <div id="seatsRow"></div>
+  <div id="modeRow"></div>
+</div>
+
+<div class="scr" id="scrGame">
+  <div id="top">
+    <button class="chip" id="btnLeave">Çık</button>
+    <div class="lbl" id="roundLbl"></div>
+    <div style="flex:1"></div>
+    <button class="chip" id="btnTbl">Tablo</button>
+  </div>
+  <div id="table">
+    <div id="rowTop"><div class="cell" id="cellT"></div></div>
+    <div id="rowMid">
+      <div class="cell" id="cellL"></div>
+      <div id="center">
+        <div id="deck"><div class="stack"></div><span id="deckN"></span></div>
+        <div id="gos"></div>
+      </div>
+      <div class="cell" id="cellR"></div>
+    </div>
+  </div>
+  <div id="bottom">
+    <div class="side"><button class="btn" id="btnCift">Çift diz</button><div class="dz fin" id="finish">Bitir</div></div>
+    <div id="rackwrap"><div id="rack"></div></div>
+    <div class="side"><button class="btn" id="btnSeri">Seri diz</button><div class="dz" id="dzMe">At</div></div>
+  </div>
+</div>
+
+<div id="tbl"><div id="paper"></div></div>
+<div id="toast"></div>
+<div id="rot"><svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="32" y="12" width="36" height="66" rx="6"/><line x1="46" y1="70" x2="54" y2="70"/><path d="M18 88c14 8 50 8 64 0"/><path d="M74 82l8 6-9 4"/></svg></div>
+
+<script src="okey-core.js"></script>
+<script>
+(() => {
+  const C = OkeyCore;
+  const $ = id => document.getElementById(id);
+  const COL = ['var(--c0)', 'var(--c1)', 'var(--c2)', 'var(--c3)'];
+  const SLOTS = 30;
+  const KIND_TTL = { b2: '2 Kişi + 2 Bot', b1: '3 Kişi + 1 Bot', h4: '4 Kişi' };
+  const HUM = { b2: [0, 2], b1: [0, 1, 2], h4: [0, 1, 2, 3] };
+  let cid = localStorage.getItem('okeyCid');
+  if (!cid) { cid = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('okeyCid', cid); }
+  let ws, myName = null, S = null, L = [], kind = null, me = 0;
+  let slots = Array(SLOTS).fill(null), slotGid = null, pendingSlot = null, drag = null, tblKey = '';
+
+  function show(id) { document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
+  const send = o => ws && ws.readyState === 1 && ws.send(JSON.stringify(o));
+  let tt;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => (t.style.display = 'none'), 1600); }
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  function goFull() {
+    if (!coarse || !document.documentElement.requestFullscreen) return;
+    document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape')).catch(() => {});
+  }
+
+  let wantName = null, retry = 0;
+  function connect() {
+    ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
+    ws.onopen = () => { retry = 0; if (wantName) send({ t: 'hello', name: wantName, cid }); };
+    ws.onmessage = e => handle(JSON.parse(e.data));
+    ws.onclose = () => { if (wantName) setTimeout(connect, Math.min(4000, 800 + retry++ * 600)); };
+  }
+  $('lf').onsubmit = e => {
+    e.preventDefault();
+    goFull();
+    wantName = $('nm').value.trim(); $('lerr').textContent = '';
+    if (ws && ws.readyState === 1) send({ t: 'hello', name: wantName, cid }); else connect();
+  };
+  try { const n = localStorage.getItem('okeyName'); if (n) $('nm').value = n; } catch (e) {}
+
+  function handle(m) {
+    if (m.t === 'denied') { $('lerr').textContent = m.text; wantName = null; show('scrLogin'); return; }
+    if (m.t === 'welcome') { myName = m.name; try { localStorage.setItem('okeyName', myName); } catch (e) {} $('hi').textContent = myName; if (!S) show('scrMenu'); return; }
+    if (m.t === 'kicked') { wantName = null; location.reload(); return; }
+    if (m.t === 'msg') { toast(m.text); return; }
+    if (m.t === 'lobby') { L = m.tables; if (!S && $('scrList').classList.contains('on')) renderList(); return; }
+    if (m.t === 'left') { S = null; tblKey = ''; $('tbl').classList.remove('on'); show('scrMenu'); return; }
+    if (m.t === 'table') { S = m; me = m.you; S.phase === 'lobby' ? renderLobby() : renderGame(); }
+  }
+
+  document.querySelectorAll('.card').forEach(c => (c.onclick = () => { kind = c.dataset.k; renderList(); show('scrList'); }));
+  $('listBack').onclick = () => show('scrMenu');
+  function dotsHTML(k, filled) {
+    let h = '<div class="dots">';
+    for (let i = 0; i < HUM[k].length; i++) h += '<i' + (i < filled ? '' : ' class="b"') + '></i>';
+    return h + '</div>';
+  }
+  function renderList() {
+    $('listTtl').textContent = KIND_TTL[kind];
+    const box = $('tlist'); box.innerHTML = '';
+    const nw = document.createElement('button');
+    nw.className = 'tcard new'; nw.textContent = '+';
+    nw.onclick = () => send({ t: 'create', kind });
+    box.appendChild(nw);
+    L.filter(t => t.kind === kind).forEach(t => {
+      const b = document.createElement('button'); b.className = 'tcard';
+      const hum = HUM[kind].map(i => t.seats[i]).filter(Boolean);
+      b.innerHTML = dotsHTML(kind, hum.length) + '<div class="nm">' + hum.join(', ') + '</div>' + (t.mode ? '<div class="tag">' + (t.mode === 'esli' ? 'Eşli' : 'Eşsiz') + '</div>' : '');
+      b.onclick = () => send({ t: 'join', id: t.id });
+      box.appendChild(b);
+    });
+  }
+  $('lobLeave').onclick = () => send({ t: 'leave' });
+  function renderLobby() {
+    show('scrLobby');
+    const row = $('seatsRow'); row.innerHTML = '';
+    for (let i = 0; i < 4; i++) {
+      const d = document.createElement('div');
+      d.className = 'seatc' + (S.bots[i] ? ' bot' : S.names[i] ? ' fill' : '');
+      d.textContent = S.names[i] || '';
+      if (HUM[S.kind].includes(i) || S.bots[i]) row.appendChild(d);
+    }
+    const mr = $('modeRow'); mr.innerHTML = '';
+    if (!S.mode && S.creator) {
+      [['esli', 'Eşli', ''], ['essiz', 'Eşsiz', 'bord']].forEach(([k, lbl, cls]) => {
+        const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = lbl;
+        b.onclick = () => send({ t: 'mode', mode: k }); mr.appendChild(b);
+      });
+    } else if (S.mode) mr.innerHTML = '<div class="tag" style="font-size:18px;padding:6px 22px">' + (S.mode === 'esli' ? 'Eşli' : 'Eşsiz') + '</div>';
+  }
+
+  function saveRack() { try { localStorage.setItem('okeyRack', JSON.stringify({ gid: slotGid, slots })); } catch (e) {} }
+  function reconcile() {
+    if (!S.hand) return;
+    if (slotGid !== S.gid) {
+      slotGid = S.gid; slots = Array(SLOTS).fill(null);
+      try { const r = JSON.parse(localStorage.getItem('okeyRack') || 'null'); if (r && r.gid === S.gid) slots = r.slots; } catch (e) {}
+    }
+    const ids = new Set(S.hand.map(t => t.id));
+    slots = slots.map(x => (x !== null && ids.has(x) ? x : null));
+    const present = new Set(slots.filter(x => x !== null));
+    let fresh = S.hand.filter(t => !present.has(t.id));
+    if (fresh.length >= 13) fresh = C.sortTiles(fresh);
+    for (const t of fresh) {
+      let i = pendingSlot !== null && slots[pendingSlot] === null ? pendingSlot : slots.indexOf(null);
+      pendingSlot = null; if (i < 0) i = 0; slots[i] = t.id;
+    }
+    saveRack();
+  }
+  function applyLayout(res) {
+    const out = Array(SLOTS).fill(null), rowLen = 15;
+    let pos = 0; const placed = new Set();
+    for (const g of res.groups) {
+      const rowEnd = (Math.floor(pos / rowLen) + 1) * rowLen;
+      if (pos + g.length > rowEnd) pos = rowEnd;
+      for (const t of g) if (pos < SLOTS) { out[pos++] = t.id; placed.add(t.id); }
+      pos++;
+    }
+    for (const t of res.rest) if (pos < SLOTS) { out[pos++] = t.id; placed.add(t.id); }
+    for (const t of S.hand) if (!placed.has(t.id)) { const i = out.indexOf(null); if (i >= 0) out[i] = t.id; }
+    slots = out; saveRack(); renderRack();
+  }
+  $('btnSeri').onclick = () => S && S.hand && applyLayout(C.arrangeSeri(S.hand, S.okey));
+  $('btnCift').onclick = () => S && S.hand && applyLayout(C.arrangeCift(S.hand, S.okey));
+
+  function tileEl(t, okey) {
+    const d = document.createElement('div'); d.className = 'tile';
+    if (t.fake) { d.classList.add('fake'); d.innerHTML = '<b>✦</b>'; }
+    else { d.style.color = COL[t.c]; d.innerHTML = '<b>' + t.n + '</b><span>●</span>'; if (okey && C.isJoker(t, okey)) d.classList.add('okey'); }
+    return d;
+  }
+  function renderRack() {
+    const rack = $('rack'); rack.innerHTML = '';
+    const byId = Object.fromEntries((S.hand || []).map(t => [t.id, t]));
+    slots.forEach((id, i) => {
+      const s = document.createElement('div'); s.className = 'slot'; s.dataset.i = i;
+      if (id !== null && byId[id]) {
+        const el = tileEl(byId[id], S.okey);
+        if (S.lastDrawn && S.lastDrawn.seat === me && S.lastDrawn.id === id && S.turn === me && S.hasDrawn) el.classList.add('fresh');
+        el.onpointerdown = e => startPointer(e, { src: 'rack', id, from: i }, el);
+        s.appendChild(el);
+      }
+      rack.appendChild(s);
+    });
+  }
+  function dropOnSlot(i) {
+    if (!drag) return;
+    if (drag.src === 'rack') { const a = drag.from; if (a === i) return; [slots[a], slots[i]] = [slots[i], slots[a]]; saveRack(); renderRack(); }
+    else if (drag.src === 'side') { if (!canDraw()) return; pendingSlot = slots[i] === null ? i : null; send({ t: 'draw', from: 'side' }); }
+  }
+  const seatAt = r => (me + r) % 4;
+  const myTurn = () => S && S.phase === 'playing' && S.turn === me;
+  const canDraw = () => myTurn() && !S.hasDrawn;
+  const canDiscard = () => myTurn() && S.hasDrawn;
+
+  function cell(el, seat) {
+    el.className = 'cell' + (S.turn === seat && S.phase === 'playing' ? ' turn' : '');
+    el.innerHTML = '';
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = (S.names[seat] || '') + ' · ' + S.counts[seat];
+    el.appendChild(nm);
+    const dz = document.createElement('div'); dz.className = 'dz';
+    const t = S.discards[seat];
+    if (t) {
+      const te = tileEl(t, S.okey); dz.appendChild(te);
+      if (seat === seatAt(3) && canDraw()) { dz.classList.add('live'); te.onpointerdown = e => startPointer(e, { src: 'side' }, te); }
+    }
+    el.appendChild(dz);
+  }
+  function renderGame() {
+    show('scrGame');
+    reconcile();
+    cell($('cellT'), seatAt(2)); cell($('cellL'), seatAt(3)); cell($('cellR'), seatAt(1));
+    $('bottom').classList.toggle('myturn', canDiscard() || canDraw());
+    $('dzMe').classList.toggle('live', canDiscard());
+    $('dzMe').innerHTML = S.discards[me] ? '' : 'At';
+    if (S.discards[me]) $('dzMe').appendChild(tileEl(S.discards[me], S.okey));
+    $('finish').classList.toggle('live', canDiscard() || canDraw());
+    $('deck').classList.toggle('live', canDraw());
+    $('deckN').textContent = S.deckCount;
+    const g = $('gos'); g.innerHTML = '';
+    const cs = getComputedStyle(document.documentElement);
+    g.style.setProperty('--tw0', cs.getPropertyValue('--tw')); g.style.setProperty('--th0', cs.getPropertyValue('--th'));
+    g.appendChild(tileEl(S.gosterge, null));
+    const ar = document.createElement('span'); ar.className = 'arr'; ar.textContent = '→'; g.appendChild(ar);
+    g.appendChild(tileEl({ c: S.okey.c, n: S.okey.n, fake: false }, S.okey));
+    $('roundLbl').textContent = 'El ' + S.round + '/' + S.rounds;
+    renderRack();
+    const key = S.round + ':' + S.phase + ':' + S.rows.length;
+    if ((S.phase === 'roundover' || S.phase === 'finished') && key !== tblKey) { tblKey = key; renderTable(); $('tbl').classList.add('on'); }
+    else if (S.phase === 'playing' && $('tbl').classList.contains('on') && $('tbl').dataset.auto === '1') $('tbl').classList.remove('on');
+    else if ($('tbl').classList.contains('on')) renderTable();
+  }
+
+  function renderTable() {
+    const fin = S.phase === 'finished', over = S.phase === 'roundover' || fin;
+    $('tbl').dataset.auto = over ? '1' : '0';
+    let h = '<table><tr><th></th>' + S.cols.map(c => '<th>' + c.label + '</th>').join('') + '</tr>';
+    for (let r = 0; r < S.rounds; r++) {
+      const row = S.rows[r];
+      const cur = row && r === S.rows.length - 1 && over;
+      h += '<tr><td class="n">' + (r + 1) + '</td>' + S.cols.map((c, ci) => {
+        if (!row) return '<td></td>';
+        const x = row.cells[ci];
+        return '<td class="' + (cur ? 'cur' : '') + '">' + (x.line ? '<span class="ln"></span>' : x.v) + '</td>';
+      }).join('') + '</tr>';
+    }
+    const best = Math.min(...S.totals);
+    h += '<tr class="tot"><td class="n"></td>' + S.totals.map(v => '<td class="' + (fin && v === best ? 'win' : '') + '">' + v + '</td>').join('') + '</tr></table>';
+    h += '<div id="tblBtns">';
+    if (S.phase === 'roundover') h += '<button class="btn" id="tNext"' + (S.iReady ? ' disabled style="opacity:.5"' : '') + '>Devam</button>';
+    else if (fin) h += '<button class="btn bord" id="tExit">Menü</button>';
+    else h += '<button class="chip" id="tClose">✕</button>';
+    h += '</div>';
+    $('paper').innerHTML = h;
+    if ($('tNext')) $('tNext').onclick = () => send({ t: 'next' });
+    if ($('tExit')) $('tExit').onclick = () => send({ t: 'leave' });
+    if ($('tClose')) $('tClose').onclick = () => $('tbl').classList.remove('on');
+  }
+  $('btnTbl').onclick = () => { if (!S) return; const on = $('tbl').classList.toggle('on'); if (on) renderTable(); };
+  $('tbl').onclick = e => { if (e.target.id === 'tbl' && S && S.phase === 'playing') $('tbl').classList.remove('on'); };
+  $('btnLeave').onclick = () => send({ t: 'leave' });
+
+  let pdown = null, ghost = null;
+  function startPointer(e, info, el) {
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    pdown = { info, el, x: e.clientX, y: e.clientY, moved: false };
+  }
+  function clearOver() { document.querySelectorAll('.over').forEach(x => x.classList.remove('over')); }
+  function targetAt(x, y) { const el = document.elementFromPoint(x, y); return el && el.closest('.slot, #dzMe, #finish'); }
+  document.addEventListener('pointermove', e => {
+    if (!pdown) return;
+    if (!pdown.moved) {
+      if (Math.hypot(e.clientX - pdown.x, e.clientY - pdown.y) < 6) return;
+      pdown.moved = true; drag = pdown.info;
+      ghost = pdown.el.cloneNode(true); ghost.classList.add('ghost'); document.body.appendChild(ghost);
+      pdown.el.classList.add('dragging');
+    }
+    ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px';
+    clearOver();
+    const t = targetAt(e.clientX, e.clientY); if (t) t.classList.add('over');
+  });
+  function endPointer(e, cancelled) {
+    if (!pdown) return;
+    const p = pdown; pdown = null;
+    if (!p.moved) { if (!cancelled && p.info.src === 'side') send({ t: 'draw', from: 'side' }); return; }
+    if (ghost) { ghost.remove(); ghost = null; }
+    clearOver(); p.el.classList.remove('dragging');
+    const t = cancelled ? null : targetAt(e.clientX, e.clientY);
+    if (t) {
+      if (t.classList.contains('slot')) dropOnSlot(+t.dataset.i);
+      else if (t.id === 'dzMe') { if (drag.src === 'rack') { if (canDiscard()) send({ t: 'discard', id: drag.id }); else toast(myTurn() ? 'Önce taş çek' : 'Sıra sende değil'); } }
+      else if (t.id === 'finish') {
+        if (drag.src === 'rack') { if (canDiscard()) send({ t: 'finish', id: drag.id }); else toast('Önce taş çek'); }
+        else if (drag.src === 'side') send({ t: 'finishSide' });
+      }
+    }
+    drag = null;
+  }
+  document.addEventListener('pointerup', e => endPointer(e, false));
+  document.addEventListener('pointercancel', e => endPointer(e, true));
+  $('deck').onclick = () => { if (canDraw()) send({ t: 'draw', from: 'deck' }); else if (S && S.phase === 'playing') toast(myTurn() ? 'Önce taş at' : 'Sıra sende değil'); };
+
+  function fit() {
+    const W = innerWidth, H = innerHeight;
+    const side = Math.max(56, Math.min(96, Math.round(W * 0.085)));
+    const wcap = Math.floor((W - 2 * side - 52 - 36) / 15) - 4;
+    const hcap = Math.floor((H - 150) / 5.5);
+    const tw = Math.max(22, Math.min(54, wcap, hcap));
+    const r = document.documentElement.style;
+    r.setProperty('--tw', tw + 'px'); r.setProperty('--th', Math.round(tw * 1.38) + 'px'); r.setProperty('--side', side + 'px');
+  }
+  addEventListener('resize', () => { fit(); if (S && S.phase !== 'lobby' && $('scrGame').classList.contains('on')) renderGame(); });
+  fit();
+})();
+</script>
+</body>
+</html>

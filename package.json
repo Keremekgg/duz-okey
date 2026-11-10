@@ -1,0 +1,13 @@
+{
+  "name": "duz-okey",
+  "version": "0.1.0",
+  "description": "Düz okey - 2 gerçek oyuncu (eş) + 2 bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "solo": "node server.js --solo"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
